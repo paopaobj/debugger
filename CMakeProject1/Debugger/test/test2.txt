@@ -1,0 +1,22 @@
+int fun(int a,int b) {
+	if(a<b){
+		return a;
+	}
+	else{
+		return b;
+	}
+}
+
+int main() {
+	int a = 5, b;
+	for (int i = 1; i <= 10; i++) {
+		b=fun(i,a);
+		if(i>2){
+			break;
+		}
+	}
+	int c=fun(a,b)+4;
+	while(c>0){
+		c--;
+	}
+}
