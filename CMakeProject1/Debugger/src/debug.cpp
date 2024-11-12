@@ -147,16 +147,22 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 						if (token[j].second == "=") { //这个变量有初始化
 							variable = token[j - 1].second;
 							int k;
-							for (k = j + 1; token[k].second != "," && token[k].second != ";"; k++); //找到初始化表达式
+							int stk = 0;
+							for (k = j + 1; k < token.size(); k++) {
+								if ((token[k].second == "," || token[k].second == ";") && stk == 0) break;
+								if (token[k].second == "(") stk++;
+								if (token[k].second == ")") stk--;
+							}
 							token = replacement(token, j + 1, k - 1, temp);
 							for (k = j + 1; token[k].second != "," && token[k].second != ";"; k++) {
 								expression += token[k].second;
 							}
+							j = k;
 							pair<double, string> value = evaluateExpression(expression);
 							array<string,4> addment = { scope.top(), type, variable, std::to_string(value.first) };
 							temp.add(addment);
 						}
-						else if ((token[j].second == ","|| token[j].second == ";") &&token[j-1].first=="IDEN") { //这个变量没有初始化
+						else if (j<token.size()&&(token[j].second == ","|| token[j].second == ";") &&token[j-1].first=="IDEN") { //这个变量没有初始化
 							variable = token[j - 1].second;
 							array<string,4> addment = { scope.top(), type, variable, "" };
 							temp.add(addment);
@@ -337,43 +343,45 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 				std::vector<std::pair<std::string, std::string>> fortoken = oneline(tokens,thisloop.startline);
 				for (s = 0; fortoken[s].second != ";"; s++);
 				for (e = s+1; fortoken[e].second != ";"; e++);
-				fortoken = replacement(fortoken, s + 1, e - 1, temp);
-				for (int j = s + 1; j <= e - 1; j++) {
-					loopcondition += fortoken[j].second;
-				}
 				s = e + 1;
 				for (e = s; e<fortoken.size()&&fortoken[e].second != ")"; e++); 
 				fortoken = replacement(fortoken, s+1,e-1, temp);
 				for (int j = s + 1; j <= e - 1; j++) {
 					loopstep += fortoken[j].second;
 				}
+				if (loopstep != "") {
+					string expression;
+					for (int j = s + 1; j < e; j++) {
+						if (fortoken[j].second == "=" || operators.contains(fortoken[j].second)) {
+							std::array<std::string, 4> inf = temp.get(fortoken[j - 1].second);
+							if (operators.contains(fortoken[j].second)) {
+								expression += inf[3];
+								if (fortoken[j].second == "+=") expression += "+";
+								else if (fortoken[j].second == "-=") expression += "-";
+								else if (fortoken[j].second == "*=") expression += "*";
+								else if (fortoken[j].second == "/=") expression += "/";
+								else if (fortoken[j].second == "%=") expression += "%";
+								else if (fortoken[j].second == "++") expression += "+1";
+								else if (fortoken[j].second == "--") expression += "-1";
+							}
+							break;
+						}
+					}
+					string variable = fortoken[s].second;
+					if (loopstep != "++" && loopstep != "--")
+						expression += loopstep;
+					pair<double, string> value = evaluateExpression(expression);
+					array<string, 2> addment = { variable, std::to_string(value.first) };
+					temp.add(addment);
+				}
+				for (s = 0; fortoken[s].second != ";"; s++);
+				for (e = s + 1; fortoken[e].second != ";"; e++);
+				fortoken = replacement(fortoken, s + 1, e - 1, temp);
+				for (int j = s + 1; j <= e - 1; j++) {
+					loopcondition += fortoken[j].second;
+				}
 				if (loopcondition == "") loopcondition = "1"; //如果没有条件，那么就默认为真（无限循环)
 				if (evaluateExpression(loopcondition).first > 0) { //如果条件成立
-					if (loopstep != "") {
-						string expression;
-						for (int j = s+1; j < e; j++) {
-							if (fortoken[j].second == "=" || operators.contains(fortoken[j].second)) {
-								std::array<std::string, 4> inf = temp.get(fortoken[j - 1].second);
-								if (operators.contains(fortoken[j].second)) {
-									expression += inf[3];
-									if (fortoken[j].second == "+=") expression += "+";
-									else if (fortoken[j].second == "-=") expression += "-";
-									else if (fortoken[j].second == "*=") expression += "*";
-									else if (fortoken[j].second == "/=") expression += "/";
-									else if (fortoken[j].second == "%=") expression += "%";
-									else if (fortoken[j].second == "++") expression += "+1";
-									else if (fortoken[j].second == "--") expression += "-1";
-								}
-								break;
-							}
-						}
-						string variable = fortoken[s].second;
-						if (loopstep != "++" && loopstep != "--")
-							expression += loopstep;
-						pair<double, string> value = evaluateExpression(expression);
-						array<string, 2> addment = { variable, std::to_string(value.first) };
-						temp.add(addment);
-					}
 					result.setstep(count++, temp);
 					nowline.push_back(i);
 					i = thisloop.startline;
@@ -462,7 +470,13 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 				std::string functionname = token[i].second;
 				std::vector<string> valuesofparameters;
 				int s=i+1, e=i+2;
-				for (e = i + 2; token[e].second != ")"; e++);
+				int stk = 1;
+				for (e = i + 2; e<=end; e++) {
+					if (token[e].second == "(") stk++;
+					else if (token[e].second == ")") stk--;
+					if (stk == 0) break;
+				}
+				end = end - (e-s+1);
 				token=replacement(token, s+1, e - 1, vt);
 				for (e = i + 2; token[e].second != ")"; e++);
 				for (int j = s + 1; j <= e - 1; j++) {
