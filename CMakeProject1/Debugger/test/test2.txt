@@ -18,5 +18,10 @@ int main() {
 	int c=fun(a,b)+4;
 	while(c>0){
 		c--;
+		if(c%3==0){
+			continue;
+		}
 	}
+	int d=fun(a,fun(b,c));
+	return d;
 }

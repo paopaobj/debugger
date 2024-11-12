@@ -110,9 +110,14 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 						thisloop = information.allloop[j];
 					}
 				}
-				i = thisloop.endline;
+				while (scope.top().substr(0, 3) != "for" && scope.top().substr(0, 5) != "while") {
+					temp.del(scope.top());
+					scope.pop();
+				}
+				i = thisloop.endline-1;
 				result.setstep(count++, temp);
 				nowline.push_back(i);
+				continue;
 			}
 
 			if (token[0].second == "return") {
@@ -204,6 +209,10 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 				//有人会问，这里如果在不赋值的情况下调用函数，那么这个函数的返回值会怎么处理？答案是没人会这么干
 				//因为我们的编译器甚至不支持array，所以所有自定义函数都是按值传递的，不存在类似sort(array)这种会更改传入参数的方法
 				//所以不赋值，仅调用是没有任何意义的，这里就不考虑这种情况
+
+				result.setstep(count++, temp);
+				nowline.push_back(i);
+				continue;
 			}
 
 			//单行语句处理结束
@@ -308,6 +317,9 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 					array<string, 2> addment = { variable, std::to_string(value.first) };
 					temp.add(addment);
 				}
+				result.setstep(count++, temp);
+				nowline.push_back(i);
+				continue;
 			}
 			else if (flag.first == "endfor") { //这是个endfor
 				string loopcondition;
@@ -337,7 +349,6 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 				}
 				if (loopcondition == "") loopcondition = "1"; //如果没有条件，那么就默认为真（无限循环)
 				if (evaluateExpression(loopcondition).first > 0) { //如果条件成立
-					i = thisloop.startline;
 					if (loopstep != "") {
 						string expression;
 						for (int j = s+1; j < e; j++) {
@@ -363,6 +374,10 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 						array<string, 2> addment = { variable, std::to_string(value.first) };
 						temp.add(addment);
 					}
+					result.setstep(count++, temp);
+					nowline.push_back(i);
+					i = thisloop.startline;
+					continue;
 				}
 				else {
 					temp.del(scope.top());
@@ -395,6 +410,9 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 				if (evaluateExpression(condition).first <= 0) {
 					i = thisloop.endline;
 				}
+				result.setstep(count++, temp);
+				nowline.push_back(i);
+				continue;
 			}
 
 			else if (flag.first == "endwhile") { //这是个endwhile
@@ -415,9 +433,9 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 					condition += fortoken[j].second;
 				}
 				if (evaluateExpression(condition).first > 0) {
-					i = thisloop.startline;
 					result.setstep(count++, temp);
 					nowline.push_back(i);
+					i = thisloop.startline;
 					continue;
 				}
 				else {
@@ -428,8 +446,6 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 					continue;
 				}
 			}
-			result.setstep(count++,temp);
-			nowline.push_back(i);
 		}
 		return "";
 	}
@@ -448,6 +464,7 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 				int s=i+1, e=i+2;
 				for (e = i + 2; token[e].second != ")"; e++);
 				token=replacement(token, s+1, e - 1, vt);
+				for (e = i + 2; token[e].second != ")"; e++);
 				for (int j = s + 1; j <= e - 1; j++) {
 					if (token[j].second != ",")
 						valuesofparameters.push_back(token[j].second);
@@ -455,7 +472,7 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 				token[i].second = executefunction(vt, functionname, valuesofparameters);
 				token[i].first = "NUM";
 				end -= (e - s + 1);
-                token.erase(token.begin() + i + 1, token.begin() + e + 1);
+                token.erase(token.begin() + s, token.begin() + e + 1);
 			}
 		}
 		
