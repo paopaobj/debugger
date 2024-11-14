@@ -21,6 +21,7 @@ public:
     int countloop;
     int count;
     std::vector<int> nowline;
+    unordered_set<string> strnames;
 private:
     std::pair<std::string, int> find(std::vector<std::pair<std::string, int>> scopes, int line);
     bool isfunction(std::vector<funs> functionnames, std::string target);

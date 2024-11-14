@@ -366,7 +366,6 @@ std::pair<double, std::string> evaluateExpression(const std::string& expr) {
             containsCharacter = true;
         }
     }
-
     if (hasLogicalOrRelationalOperator) {
         type = "bool";
     } else if (static_cast<int>(result) == result) {

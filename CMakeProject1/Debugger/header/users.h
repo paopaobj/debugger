@@ -8,6 +8,7 @@ class User {
 	int step = 0;
 public:
 	User(std::string filename) : debug(filename) {
+		debug.run();
 	}
 	std::pair<VT, int> show() {
 		VT vt = debug.result.getstep(step);

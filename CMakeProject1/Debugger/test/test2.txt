@@ -7,21 +7,17 @@ int fun(int a,int b) {
 	}
 }
 
+struct student{
+	int age;
+	double score;
+};
+
 int main() {
-	int a = 5, b;
-	for (int i = 1; i <= 10; i++) {
-		b=fun(i,a);
-		if(i>2){
-			break;
-		}
-	}
-	int c=fun(a,b)+4;
-	while(c>0){
-		c--;
-		if(c%3==0){
-			continue;
-		}
-	}
-	int d=fun(a,fun(b,fun(a,fun(b,c))));
-	return d;
+	student t={19,72.1},s={20,43.4};
+	t.age=21;
+	s={20,48};
+	t=s;
+	double a=s.score,b=t.score;
+	student low={15,fun(a,b)};
+	return 0;
 }

@@ -24,20 +24,36 @@ int main(){
 	cout<<final.getstep(2).table[0][0]<<" "<<final.getstep(2).table[0][1]<<" "<<final.getstep(2).table[0][2]<<endl;
 	*/
 
-	/*
-	User debug = User("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test2.txt");
-	for (int i = 0; i < 18; i++) {
-		std::vector<std::array<std::string, 4>> table = debug.show().first.table;
-		for (int j = 0; j < table.size(); j++) {
-			cout << table[j][0] << " " << table[j][1] << " " << table[j][2] << " " << table[j][3] << endl;
-		}
-		cout << "Line: " << debug.show().second << endl;
-	}
-	*/
 	
+	User debug = User("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test2.txt");
+	string words;
+	while (cin >> words) {
+		if (words == "next") {
+			debug.next();
+		}
+		if (words == "prev") {
+			debug.previous();
+		}
+		if (words == "jump") {
+			int line;
+			cin >> line;
+			debug.jump(line);
+		}
+		pair<VT, int> show = debug.show();
+		cout << "We are at line: " << show.second << endl;
+		for (auto i : show.first.table) {
+			for (auto j : i) {
+				cout << j << " ";
+			}
+			cout << endl;
+		}
+	}
+	
+
+	/*
 	Debug d = Debug("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test2.txt");
 	VTs result = d.run();
-	
+
 	for (int i = 0; i < result.size(); i++) {
 
 		cout << "We are at line: " << d.nowline[i] << endl;
@@ -48,7 +64,7 @@ int main(){
 		cout << endl;
 		
 	}
-	
+	*/
 	return 0;
 }
 

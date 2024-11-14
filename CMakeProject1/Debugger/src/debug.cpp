@@ -21,12 +21,16 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
           countif(0), 
           countloop(0), 
           count(0), 
-          nowline(vector<int>()) 
+          nowline(vector<int>()),
+		  strnames(unordered_set<string>())
     {}
 
 	VTs Debug::run() {
 		VT vt;
 		vector<string> p;
+		for (int i = 0; i < information.allstruct.size(); i++) {
+			strnames.insert(information.allstruct[i].strname);
+		}
 		executefunction(vt, "main", p);
 		return result;
 	}
@@ -169,16 +173,78 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 						}
 					}
 				}
+				else if (strnames.contains(token[0].second)) { //这是个结构体声明
+					string structname = token[0].second;
+					strs thisstr;
+					for (int j = 0; j < information.allstruct.size(); j++) {
+						if (information.allstruct[j].strname == structname) {
+							thisstr = information.allstruct[j];
+							break;
+						}
+					}
+					for (int j = 1; j < token.size(); j++) { //处理每个变量
+						std::string variable;
+						if (token[j].second == "=") { //这个变量有初始化
+							variable = token[j - 1].second;
+							array<string, 4> addment = { scope.top(), token[0].second, variable, "As follows"};
+							temp.add(addment);
+							int k;
+							int stk = 0;
+							for (k = j + 1; k < token.size(); k++) {
+								if (token[k].second == "{") stk++;
+								if (token[k].second == "}") {
+									stk--;
+									if (stk == 0) break;
+								}
+							}
+							token = replacement(token, j + 1, k - 1, temp);
+							vector<string> e;
+							for (k = j + 1; k < token.size(); k++) {
+								if (token[k].second == "{") stk++;
+								if (token[k].second == "}") {
+									stk--;
+									if (stk == 0) break;
+								}
+							}
+							for (int l = j + 2; l < k; l++) {
+								string tp;
+								int end = l;
+								while (token[end].second != "," && token[end].second != "}") {
+									tp += token[end].second;
+									end++;
+								}
+								replacement(token, l, end - 1, temp);
+								l = end;
+								e.push_back(tp);
+							}
+							while (e.size() < thisstr.strcontent.size())
+								e.push_back("");
+							for (int l = 0; l < e.size(); l++) {
+								pair<double, string> value = evaluateExpression(e[l]);
+								array<string, 4> addment = { scope.top(), thisstr.strcontent[l].first, variable + "." + thisstr.strcontent[l].second, to_string(value.first) };
+								temp.add(addment);
+							}
+						}
+						else if (j < token.size() && (token[j].second == "," || token[j].second == ";") && token[j - 1].first == "IDEN") { //这个变量没有初始化
+							for (int l = 0; l < thisstr.strcontent.size(); l++) {
+								array<string, 4> addment = { scope.top(),thisstr.strcontent[l].first, variable + "." + thisstr.strcontent[l].second, ""};
+								temp.add(addment);
+							}
+						}
+					}
+				}
 
 				else { //这是个赋值语句，那更好了
 					bool haseq=false;
 					string expression;
 					string variable;
 					string op;
+					int eq = -1;
 					unordered_set<string> operators = { "+=", "-=", "*=", "/=", "%=" ,"++","--"};
 					for (int j = 0; j < token.size(); j++) {
 						if (token[j].second == "="||operators.contains(token[j].second)) {
 							haseq = true;
+							eq = j;
 							op = token[j].second;
 							std::array<std::string, 4> inf = temp.get(token[j-1].second);
 							variable = token[j - 1].second;
@@ -200,17 +266,52 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 						nowline.push_back(i);
 						continue;
 					}
-					int j;
-					for (j = 2; token[j].second != ";"; j++);
-					token=replacement(token, 2, j - 1, temp);
-					if(op!="++"&&op!="--"){
-						for (j = 2; token[j].second != ";"; j++) {
-							expression += token[j].second;
+					else{
+						int j;
+						for (j = 2; token[j].second != ";"; j++);
+						token = replacement(token, 2, j - 1, temp);
+
+					    if (token[eq + 1].second == "{") {
+							int s, e;
+							strs thisstr;
+							array<string, 4> inf = temp.get(variable);
+							for (int j = 0; j < information.allstruct.size(); j++) {
+								if (information.allstruct[j].strname == inf[1]) {
+									thisstr = information.allstruct[j];
+									break;
+								}
+							}
+							for (s = eq + 1; token[s].second != "{"; s++);
+							for (e = s; token[e].second != "}"; e++);
+							token = replacement(token, s + 1, e - 1, temp);
+							vector<string> express;
+							for (int j = s + 1; j < e; j++) {
+								string tp;
+								while (token[j].second != "," && token[j].second != "}") {
+									tp += token[j].second;
+									j++;
+								}
+								express.push_back(tp);
+							}
+							while (express.size() < thisstr.strcontent.size())
+								express.push_back("");
+							for (int j = 0; j < express.size(); j++) {
+								pair<double, string> value = evaluateExpression(express[j]);
+								array<string, 4> addment = { thisstr.strname + "." + thisstr.strcontent[j].second, to_string(value.first)};
+								temp.add(addment);
+							}
+						}
+						else {
+							if (op != "++" && op != "--") {
+								for (j = 2; token[j].second != ";"; j++) {
+									expression += token[j].second;
+								}
+							}
+							pair<double, string> value = evaluateExpression(expression);
+							array<string, 2> addment = { variable, std::to_string(value.first) };
+							temp.add(addment);
 						}
 					}
-					pair<double, string> value = evaluateExpression(expression);
-					array<string, 2> addment = { variable, std::to_string(value.first) };
-					temp.add(addment);
 				}
 				//有人会问，这里如果在不赋值的情况下调用函数，那么这个函数的返回值会怎么处理？答案是没人会这么干
 				//因为我们的编译器甚至不支持array，所以所有自定义函数都是按值传递的，不存在类似sort(array)这种会更改传入参数的方法
@@ -462,9 +563,33 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 		if (start > end) return token;
 		for (int i = start; i <= end; i++) {
 			if (token[i].first == "IDEN" && !isfunction(information.allfunction, token[i].second)) {
-				std::array<std::string, 4> inf = vt.get(token[i].second);
-				if (!inf[0].empty())
-					token[i].second = inf[3];
+				if (strnames.contains(vt.get(token[i].second)[1])) {
+					strs thisstr;
+					for (int j = 0; j < information.allstruct.size(); j++) {
+						if (information.allstruct[j].strname == vt.get(token[i].second)[1]) {
+							thisstr = information.allstruct[j];
+							break;
+						}
+					}
+					string variable = token[i].second;
+					token[i].first = "Delimiter";
+					token[i].second = "{";
+					int j;
+					for (j = 0; j < thisstr.strcontent.size()-1; j++) {
+						array<string, 4> inf = vt.get(variable + "." + thisstr.strcontent[j].second);
+						token.insert(token.begin() + i + 2*j + 1, make_pair("Num", inf[3]));
+						token.insert(token.begin() + i + 2*j + 2, make_pair("Delimiter", ","));
+					}
+					array<string, 4> inf = vt.get(variable + "." + thisstr.strcontent[j].second);
+					token.insert(token.begin() + i + 2 * j + 1, make_pair("Num", inf[3]));
+					token.insert(token.begin() + i + 2*j+2, make_pair("Delimiter", "}"));
+					end =end+ 2 * thisstr.strcontent.size();
+				}
+				else{
+					std::array<std::string, 4> inf = vt.get(token[i].second);
+					if (!inf[0].empty())
+						token[i].second = inf[3];
+				}
 			}
 			else if (token[i].first == "IDEN" && isfunction(information.allfunction, token[i].second)) {
 				std::string functionname = token[i].second;

@@ -9,6 +9,7 @@ ScopeSegment::ScopeSegment(std::string filename){
 	allloop= findloops();
 	allif = findifs();
 	allfunction = findfuns();
+	allstruct = findstrs();
 }
 
 int ScopeSegment::getpos(int line) {
@@ -146,6 +147,35 @@ vector<funs> ScopeSegment::findfuns() {
 				if (tokens[pos].second != ",") {
 					result.funparameters.push_back(make_pair(tokens[pos].second,tokens[pos+1].second));
 					pos++;
+				}
+				pos++;
+			}
+			r.push_back(result);
+		}
+	}
+	return r;
+}
+
+vector<strs> ScopeSegment::findstrs() {
+	vector<strs> r;
+	const unordered_set<string> typeword = { "void", "int", "char", "float", "double", "bool", "string", "long", "short", "signed", "unsigned" };
+
+	for (int i = 0; i < scopes.size(); i++) {
+		strs result;
+		if (scopes[i].first == "startstruct") {
+			result.startline = scopes[i].second;
+			result.endline = getpos(result.startline);
+			int pos = tokenpos(result.startline);
+			pos += 2;
+
+			result.strname = tokens[pos].second;
+
+			pos += 2;
+
+			while (tokens[pos].second != "}"||tokens[pos+1].second!=";") {
+				if (typeword.contains(tokens[pos].second)&&tokens[pos+1].first=="IDEN") {
+					pair<string, string> addment = make_pair(tokens[pos].second, tokens[pos + 1].second);
+					result.strcontent.push_back(addment);
 				}
 				pos++;
 			}

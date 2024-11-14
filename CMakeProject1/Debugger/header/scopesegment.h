@@ -29,6 +29,12 @@ struct funs {
 	std::vector<std::pair<std::string, std::string>> funparameters = vector<std::pair<std::string, std::string>>();
 };
 
+struct strs {
+	int startline = -1;
+	int endline = -1;
+	std::string strname = "";
+	vector<pair<string,string>> strcontent;
+};
 
 class ScopeSegment{
 	public:
@@ -38,6 +44,7 @@ class ScopeSegment{
 		vector<loops> allloop;
 		vector<ifs> allif;
 		vector<funs> allfunction;
+		vector<strs> allstruct;
 
 		ScopeSegment(std::string filename);
 	
@@ -46,6 +53,8 @@ class ScopeSegment{
 		vector<ifs> findifs();
 	
 		vector<funs> findfuns();
+
+		vector<strs> findstrs();
 
 		int getpos(int line);
 

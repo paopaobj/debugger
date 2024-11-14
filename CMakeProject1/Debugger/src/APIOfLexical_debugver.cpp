@@ -35,7 +35,7 @@ char whitespace[] = { ' ', '\t', '\n', '\r' };
 char doubleOperator[] = { '+', '-', '*', '/', '%', '=', '!', '>', '<', '&', '|', '^' };
 
 //There are two others: ' and ", cannot be written in the array
-char delimiter[] = { '(', ')', '[', ']', '{', '}', '.', ',', ';', '?', '#', ':' };
+char delimiter[] = { '(', ')', '[', ']', '{', '}', ',', ';', '?', '#', ':' };
 
 
 
@@ -87,7 +87,10 @@ bool isWhiteSpace(char ch) {
 }
 
 bool isLetter(char ch) {
-    if (ch >= 'A' && ch <= 'Z') {
+	if (ch == '.') {
+		return true;
+	}
+    else if (ch >= 'A' && ch <= 'Z') {
         return true;
     }
     else if (ch >= 'a' && ch <= 'z') {

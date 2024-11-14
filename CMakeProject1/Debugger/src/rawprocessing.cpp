@@ -68,8 +68,27 @@ unordered_set<string> findfuns(vector<pair<string, string> > tokens,int n) {
 	return functionnames;
 }
 
+unordered_set<string> findstructs(vector<pair<string, string> > tokens, int n) {
+	unordered_set<string> structnames;
+	for (int i = 0; i < n; i++) {
+		if (tokens[i].second == "struct" ) {
+			structnames.insert(tokens[i + 1].second);
+		}
+		if (tokens[i].second == "{") {
+			int end = pairing(tokens, i, n);
+			for (; i < n; i++) {
+				if (tokens[i].first == "startofline" && tokens[i].second == to_string(end)) {
+					while (tokens[++i].second != "}");
+					break;
+				}
+			}
+		}
+	}
+	return structnames;
+}
+
 //找到所有的作用域
-vector<pair<string, int> > findallscope(vector<pair<string, string> > tokens, unordered_set<string> functionname, int n) {
+vector<pair<string, int> > findallscope(vector<pair<string, string> > tokens, unordered_set<string> functionname, unordered_set<string> structname, int n) {
 	int currentline = 0;
 	vector<pair<string, int> > result;
 
@@ -99,6 +118,10 @@ vector<pair<string, int> > findallscope(vector<pair<string, string> > tokens, un
 				result.push_back(make_pair("startfun", currentline));
 				result.push_back(make_pair("endfun", pairing(tokens,i,n)));
 			}
+			if (i < n - 1 && structname.contains(tokens[i + 1].second)) {
+				result.push_back(make_pair("startstruct", currentline));
+				result.push_back(make_pair("endstruct", pairing(tokens, i, n)));
+			}
 		}
 	}
 	return result;
@@ -109,8 +132,9 @@ vector<pair<string, int> > findALLscope(string filename) {
 	vector<pair<string, string> > tokens = gettoken(filename);
 	int n = tokens.size();
 	unordered_set<string> functionname = findfuns(tokens,n);
+	unordered_set<string> structname = findstructs(tokens, n);
 
-	vector<pair<string, int> > scopes = findallscope(tokens,functionname,n);
+	vector<pair<string, int> > scopes = findallscope(tokens,functionname,structname,n);
 	stable_sort(scopes.begin(), scopes.end(), [](const pair<string, int>& a, const pair<string, int>& b) {
 		return a.second < b.second;
 		});
