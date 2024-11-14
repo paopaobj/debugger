@@ -297,7 +297,7 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 								express.push_back("");
 							for (int j = 0; j < express.size(); j++) {
 								pair<double, string> value = evaluateExpression(express[j]);
-								array<string, 4> addment = { thisstr.strname + "." + thisstr.strcontent[j].second, to_string(value.first)};
+								array<string, 2> addment = { variable + "." + thisstr.strcontent[j].second, to_string(value.first)};
 								temp.add(addment);
 							}
 						}
