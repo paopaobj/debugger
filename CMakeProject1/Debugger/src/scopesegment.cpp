@@ -10,6 +10,7 @@ ScopeSegment::ScopeSegment(std::string filename){
 	allif = findifs();
 	allfunction = findfuns();
 	allstruct = findstrs();
+	allglobalvars = findglobalvars();
 }
 
 int ScopeSegment::getpos(int line) {
@@ -180,6 +181,45 @@ vector<strs> ScopeSegment::findstrs() {
 				pos++;
 			}
 			r.push_back(result);
+		}
+	}
+	return r;
+}
+
+vector<globalvars> ScopeSegment::findglobalvars() {
+	vector<globalvars> r;
+	const unordered_set<string> typeword = { "void", "int", "char", "float", "double", "bool", "string", "long", "short", "signed", "unsigned" };
+
+	for (int i = 0; i < tokens.size(); i++) {
+		globalvars result;
+		if (tokens[i].second == "main") break;
+		if ((typeword.contains(tokens[i].second)&&tokens[i+1].first=="IDEN"&&tokens[i+2].second=="(")||tokens[i].second=="struct") {
+			int stk = 0;
+			for (; i < tokens.size(); i++) {
+				if (tokens[i].second == "{") stk++;
+				if (tokens[i].second == "}") {
+					stk--;
+					if (stk == 0) break;
+				}
+			}
+		}
+		else if (typeword.contains(tokens[i].second)&&tokens[i+1].first=="IDEN"&&tokens[i+2].second!="(") {
+			string type = tokens[i].second;
+			while (tokens[i].second != ";") {
+				i++;
+				if (tokens[i].first == "IDEN") {
+					result.varname = tokens[i].second;
+				}
+				else if (tokens[i].second == "=") {
+					i++;
+					while (tokens[i].second != ","&&tokens[i].second!=";") {
+						result.varvalue.push_back(tokens[i]);
+						i++;
+					}
+					result.vartype = type;
+					r.push_back(result);
+				}
+			}
 		}
 	}
 	return r;

@@ -31,6 +31,16 @@ const unordered_set<string> typeword = { "void", "int", "char", "float", "double
 		for (int i = 0; i < information.allstruct.size(); i++) {
 			strnames.insert(information.allstruct[i].strname);
 		}
+		for (int i = 0; i < information.allglobalvars.size(); i++) {
+			vector<pair<string,string>> t=replacement(information.allglobalvars[i].varvalue, 0, information.allglobalvars[i].varvalue.size() - 1, vt);
+			string expr = "";
+			for (int j = 0; j < t.size(); j++) {
+				expr += t[j].second;
+			}
+			string value = to_string(evaluateExpression(expr).first);
+			array<string, 4> addment = { "global", information.allglobalvars[i].vartype, information.allglobalvars[i].varname, value };
+			vt.add(addment);
+		}
 		executefunction(vt, "main", p);
 		return result;
 	}

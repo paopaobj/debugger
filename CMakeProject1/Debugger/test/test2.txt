@@ -12,6 +12,10 @@ struct student{
 	double score;
 };
 
+int abcd=100;
+int e=5+7;
+int c=e+5;
+
 int main() {
 	student t={19,72.1},s={20,43.4};
 	t.age=21;

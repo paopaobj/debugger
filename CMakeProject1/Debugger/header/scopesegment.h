@@ -36,6 +36,12 @@ struct strs {
 	vector<pair<string,string>> strcontent;
 };
 
+struct globalvars {
+	std::string varname = "";
+	std::string vartype = "";
+	std::vector<pair<std::string,std::string>> varvalue;
+};
+
 class ScopeSegment{
 	public:
 		std::vector<std::pair<std::string, int>> scopes;
@@ -45,6 +51,7 @@ class ScopeSegment{
 		vector<ifs> allif;
 		vector<funs> allfunction;
 		vector<strs> allstruct;
+		vector<globalvars> allglobalvars;
 
 		ScopeSegment(std::string filename);
 	
@@ -55,6 +62,8 @@ class ScopeSegment{
 		vector<funs> findfuns();
 
 		vector<strs> findstrs();
+
+		vector<globalvars> findglobalvars();
 
 		int getpos(int line);
 

@@ -12,6 +12,10 @@ int pairing(vector<pair<string, string> > tokens, int start,int n) {
 	int line = -1;
 	stack<string> s;
 	int i = start;
+	//如果是形如for() balabala;
+	//或for()
+	//		balabala;
+	//这种不带大括号的作用域
 	while (tokens[i].second != "{") {
 		if (i < n - 1 && tokens[i].first == "startofline" && tokens[i + 1].second != "{") {
 			if (tokens[i - 1].second != ";") { //返回下一行的行号
@@ -23,10 +27,6 @@ int pairing(vector<pair<string, string> > tokens, int start,int n) {
 		i++;
 	}
 	for (i = start; i < n; i++) {
-		//如果是形如for() balabala;
-		//或for()
-		//		balabala;
-		//这种不带大括号的作用域
 		if (tokens[i].second == "{") {
 			s.push("1");
 		}
