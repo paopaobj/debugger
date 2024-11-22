@@ -24,27 +24,56 @@ int main(){
 	cout<<final.getstep(2).table[0][0]<<" "<<final.getstep(2).table[0][1]<<" "<<final.getstep(2).table[0][2]<<endl;
 	*/
 
-	
-	vector<pair<string, string>> t1 = gettoken("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test3.txt");
-	vector<pair<string, string>> t2 = gettoken("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test2.txt");
+	/*
+	User s = User("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test2.txt");
+	User p = User("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test3.txt");
+	*/
 
-	for (auto i : t1) {
-		cout << i.first << " " << i.second << endl;
+	User ss = User("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test2.txt");
+	User pp = User("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test3.txt");
+	string word;
+	while (cin >> word) {
+		if (word == "next") {
+			ss.next();
+		}
+		else if (word == "previous") {
+			ss.previous();
+		}
+		else if (word == "jump") {
+			int line;
+			cin >> line;
+			ss.jump(line);
+		}
+		else if (word == "end") break;
+		pair<VT, int> result = ss.show();
+		for (auto i : result.first.table) {
+			cout << i[0] << " " << i[1] << " " << i[2] << " " << i[3] << endl;
+		}
 	}
 
-	cout << endl;
-
-	for (auto i : t2) {
-		cout << i.first << " " << i.second << endl;
+	while (cin >> word) {
+		if (word == "next") {
+			pp.next();
+		}
+		else if (word == "previous") {
+			pp.previous();
+		}
+		else if (word == "jump") {
+			int line;
+			cin >> line;
+			pp.jump(line);
+		}
+		pair<VT, int> result = pp.show();
+		for (auto i : result.first.table) {
+			cout << i[0] << " " << i[1] << " " << i[2] << " " << i[3] << endl;
+		}
 	}
 
 	/*
-	Debug d = Debug("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test2.txt");
-	VTs result = d.run();
+	VTs result = ss.run();
 
 	for (int i = 0; i < result.size(); i++) {
-
-		cout << "We are at line: " << d.nowline[i] << endl;
+		cout << "We are at line: " << ss.nowline[i] << endl;
 		std::vector<std::array<std::string, 4>> table = result.getstep(i).table;
 		for (int j = 0; j < table.size(); j++) {
 			cout << table[j][0] << " " << table[j][1] << " " << table[j][2] << " " << table[j][3] << endl;
@@ -53,6 +82,7 @@ int main(){
 		
 	}
 	*/
+	
 	return 0;
 }
 
