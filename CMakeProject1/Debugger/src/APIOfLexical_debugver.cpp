@@ -274,6 +274,8 @@ void words(string input, bool& hasBeenComment) {
 }
 
 vector<pair<string, string> > gettoken(string filename) {
+	output.clear();
+	hasBeenComment = false;
     fstream file;
     string line;
     int l = 0;

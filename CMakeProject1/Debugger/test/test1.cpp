@@ -25,30 +25,18 @@ int main(){
 	*/
 
 	
-	User debug = User("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test2.txt");
-	string words;
-	while (cin >> words) {
-		if (words == "next") {
-			debug.next();
-		}
-		if (words == "prev") {
-			debug.previous();
-		}
-		if (words == "jump") {
-			int line;
-			cin >> line;
-			debug.jump(line);
-		}
-		pair<VT, int> show = debug.show();
-		cout << "We are at line: " << show.second << endl;
-		for (auto i : show.first.table) {
-			for (auto j : i) {
-				cout << j << " ";
-			}
-			cout << endl;
-		}
+	vector<pair<string, string>> t1 = gettoken("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test3.txt");
+	vector<pair<string, string>> t2 = gettoken("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test2.txt");
+
+	for (auto i : t1) {
+		cout << i.first << " " << i.second << endl;
 	}
-	
+
+	cout << endl;
+
+	for (auto i : t2) {
+		cout << i.first << " " << i.second << endl;
+	}
 
 	/*
 	Debug d = Debug("D:\\zhuomian\\de\\CMakeProject1\\Debugger\\test\\test2.txt");
