@@ -1,0 +1,27 @@
+int fun(int a,int b) {
+	if(a<b){
+		return a;
+	}
+	else{
+		return b;
+	}
+}
+
+struct student{
+	int age;
+	double score;
+};
+
+int abcd=100;
+int e=5+7;
+int c=e+5;
+
+int main() {
+	student t={19,72.1},s={20,43.4};
+	t.age=21;
+	s={20,48};
+	t=s;
+	double a=s.score,b=t.score;
+	student low={15,fun(a,b)};
+	return 0;
+}
